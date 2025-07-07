@@ -67,7 +67,7 @@ def lotto_num():
     lotto_num_box.insert("end", f"{today}")
 
     # Generating winners
-    for i in range(10):
+    for i in range(6):
         lotto_number = list(range(1, 46))
         winner_numbers = sample(lotto_number, 6)
         winner_numbers = sorted(winner_numbers)
