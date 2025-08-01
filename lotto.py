@@ -3,7 +3,7 @@ import random
 
 random.seed(time.time())
 
-print("How many total numbers you like to choose?")
+print("✅ How many total numbers you like to choose?")
 c = input()
 print('')
 
@@ -13,11 +13,11 @@ numbers_picked = random.sample(numbers, int(c))
 print(numbers_picked)
 print('')
 
-print('How many games would you like to play?')
+print('✅ How many games would you like to play?')
 n = input()
 print('')
 
-print('Please find your numbers below, Good luck!')
+print('✅ Please find your numbers below, Good luck!')
 print('')
 
 for i in range(int(n)):
