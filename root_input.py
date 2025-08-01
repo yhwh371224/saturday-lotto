@@ -1,7 +1,7 @@
-print('Min? (✅ 보통 번호가 1부터 시작하니 1을 적으면 된다)') 
+print('Min? (✅ 번호가 1부터 시작하니 1을 적으면 된다)') 
 min = input()
 
-print('Max? (✅ 보통 번호가 45까지 있으니 46를 적으면 된다)')
+print('Max? (✅ 번호가 45까지 있으면 46을 적으면 된다)')
 max = input()
 
 print('✅ How many numbers would you like to pick?')

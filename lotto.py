@@ -23,5 +23,6 @@ print('')
 for i in range(int(n)):
     winner_numbers = random.sample(numbers_picked, 6)
     winner_numbers.sort()
-    print(f"{i+1}회: {winner_numbers}")
+    print('')
+    print(f"💰 {i+1}회: {winner_numbers}")
     print('')

@@ -12,8 +12,7 @@ for i in range(int(n)):
     winner_numbers = random.sample(lotto_number, int(z))
     winner_numbers.sort()
     print('')
-    print(f"{i+1}회: {winner_numbers}")
+    print(f"✨ {i+1}회: {winner_numbers}")
     print('')
 
 
-    
