@@ -13,14 +13,14 @@ names = [
     "sungkam3@",
     "junghee@",
     "commbank",
-    "nab",
+    "anz (nab)",
     "westpac",
     "coinspot",
     "paypal",
     "stripe",
     "ozlotto",
     "github",
-    "mysql",
+    "bitwarden",
     "vultr",
     "crazy",
     "cloudfare",
@@ -30,7 +30,7 @@ if len(names) != 15:
     print("⚠️  Please double check if there are 15 names.")
     exit()
 
-def generate_password(length=16):
+def generate_password(length=24):
     chars = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(chars) for _ in range(length))
 
