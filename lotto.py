@@ -8,7 +8,7 @@ c = input()
 print('')
 
 # 28 numbers
-# 7pDg t2Nz TL1r 2Z6g 6gv4 vPYs 3Lmm 
+# 7pDgt2NzTL1r2Z6g6gv4vPYs3Lmm 
 numbers = list(range(1, 46))
 numbers_picked = random.sample(numbers, int(c))
 print(numbers_picked)
