@@ -2,65 +2,52 @@
 import xrpl
 from xrpl.core import addresscodec
 
-# -----------------------------
-# USER INPUT (세 군데만 수정)
-# -----------------------------
+# ---------------------------------------
+# USER INPUT
+# ---------------------------------------
+SEED_TEMPLATE = "sEdXXXXXXXXXXXXXXXXXXXXXX?XXX"  # put your seed with ? at pos 27
+UNKNOWN_POS = 27  # 1-based index of '?'
 
-# 네가 기억하는 seed (27번째 글자만 '?' 로 표시)
-SEED_TEMPLATE = "sEdXXXXXXXXXXXXXXXXXXXXXX?XXX"  # 예시 형태, 너는 직접 수정
+KNOWN_PUBLIC_KEY = "EDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  # your actual public key
+KNOWN_ADDRESS = "rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"     # your actual address
 
-# 헷갈리는 위치 (1부터 시작 → 27번째)
-UNKNOWN_POS = 27
+# Only two candidates
+CANDIDATES = ["m", "n"]
 
-# 네가 확실히 알고 있는 XRP 주소 (또는 public key)
-KNOWN_PUBLIC_KEY = "EDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" 
-KNOWN_ADDRESS = "rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"  
+# Try both Ed25519 and Secp256k1
+ALGORITHMS = ["ed25519", "secp256k1"]
 
-# -----------------------------
-# Base58 문자 목록
-# -----------------------------
-BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+print("[+] Starting 2-option brute force...\n")
 
-correct = []
-
-for c in BASE58:
-    # 27번째 글자만 교체
+for c in CANDIDATES:
     seed_list = list(SEED_TEMPLATE)
     seed_list[UNKNOWN_POS - 1] = c
     candidate_seed = "".join(seed_list)
 
-    try:
-        # Seed → Keypair
-        kp = xrpl.core.keypairs.derive_keypair(candidate_seed)
-        pub_key = kp[1]
-        
-        # First check the public key (fast)
-        if pub_key != KNOWN_PUBLIC_KEY:
-            continue
+    for algo in ALGORITHMS:
+        try:
+            kp = xrpl.core.keypairs.derive_keypair(candidate_seed, algorithm=algo)
+            priv_key, pub_key = kp
 
-        # If public key matches, check address too
-        addr = addresscodec.classic_address(pub_key)
-        if addr == KNOWN_ADDRESS:
-            print("\nFOUND MATCHING SEED:", candidate_seed)
-            break
+            # DEBUG: show candidate
+            print(f"Trying {candidate_seed} ({algo}) => {pub_key}")
 
-    except Exception:
-        pass
+            if pub_key != KNOWN_PUBLIC_KEY:
+                continue
 
-if not correct:
-    print("No matching seed found. Check template or position.")
-else:
-    print("\nAll matching seeds:")
-    for s in correct:
-        print(s)
+            addr = addresscodec.classic_address(pub_key)
+            if addr == KNOWN_ADDRESS:
+                print("\nFOUND MATCHING SEED!")
+                print("Seed:", candidate_seed)
+                print("Algorithm:", algo)
+                print("Public key:", pub_key)
+                print("Address:", addr)
+                exit(0)
 
+        except Exception as e:
+            print(f"Skipping {candidate_seed} ({algo}): {e}")
 
-# -----------------------------
-# sudo apt install python3-pip
-# pip3 install xrpl-py
-# -----------------------------
-
-
-# -----------------------------
-# python3 recover_seed.py 
-# -----------------------------
+print("\n[!] No matching seed found. Double-check:")
+print("    - '?' 위치가 정확한지")
+print("    - KNOWN_PUBLIC_KEY 포맷이 derive_keypair()와 맞는지")
+print("    - Seed가 정말 하나만 미확인 문자인지")
