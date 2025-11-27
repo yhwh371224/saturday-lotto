@@ -1,34 +1,46 @@
+#!/usr/bin/env python3
 import xrpl
 from xrpl.core import addresscodec
 
-
-SEED_TEMPLATE = "sEdXXXXXXXXXXXXXXXXXXXXXX?XXX"
-UNKNOWN_POS = 27
+# ---------------------------------------
+# USER INPUT
+# ---------------------------------------
+SEED_M = "sEdXXXXXXXXXXXXXXXXXXXXXXmXXX"  # m 버전
+SEED_N = "sEdXXXXXXXXXXXXXXXXXXXXXXnXXX"  # n 버전
 
 KNOWN_PUBLIC_KEY = "EDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 KNOWN_ADDRESS = "rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-CANDIDATES = ["m", "n"]
+CANDIDATES = [("m", SEED_M), ("n", SEED_N)]
 ALGORITHMS = ["ed25519", "secp256k1"]
 
-for c in CANDIDATES:
-    seed_list = list(SEED_TEMPLATE)
-    seed_list[UNKNOWN_POS - 1] = c
-    candidate_seed = "".join(seed_list)
+print("[+] Trying m / n seeds...\n")
+
+for label, candidate_seed in CANDIDATES:
+    print(f"[*] Testing seed with '{label}' → {candidate_seed}")
 
     for algo in ALGORITHMS:
         try:
-            priv_key, pub_key = xrpl.core.keypairs.derive_keypair(candidate_seed, algorithm=algo)
+            priv, pub = xrpl.core.keypairs.derive_keypair(candidate_seed, algorithm=algo)
+            print(f"    - Derived pub ({algo}): {pub}")
 
-            if pub_key == KNOWN_PUBLIC_KEY:
-                addr = addresscodec.classic_address(pub_key)
+            if pub == KNOWN_PUBLIC_KEY:
+                addr = addresscodec.classic_address(pub)
                 if addr == KNOWN_ADDRESS:
-                    print(f"FOUND MATCHING SEED: {candidate_seed}")
-                    print(f"Algorithm: {algo}")
-                    print(f"Address: {addr}")
+                    print("\n====================================")
+                    print("  FOUND MATCHING SEED!")
+                    print("====================================")
+                    print("Seed:      ", candidate_seed)
+                    print("Algorithm: ", algo)
+                    print("Public Key:", pub)
+                    print("Address:   ", addr)
+                    print("====================================\n")
                     exit(0)
 
         except Exception as e:
-            print(f"Skipping {candidate_seed} ({algo}): {e}")
+            print(f"    - Invalid for {algo}: {e}")
 
-print("No matching seed found. Check '?' position or key info.")
+print("\n[!] No matching seed found.")
+print("    → m/n 둘 다 틀렸거나")
+print("    → 공개키/주소 포맷이 실제 derive_keypair 출력과 다르거나")
+print("    → 실제 seed가 Ed25519인지 Secp256인지 다를 수 있음")
