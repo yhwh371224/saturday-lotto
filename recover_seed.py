@@ -5,42 +5,38 @@ from xrpl.core import addresscodec
 # ---------------------------------------
 # USER INPUT
 # ---------------------------------------
-SEED_M = "sEdXXXXXXXXXXXXXXXXXXXXXXmXXX"  # m 버전
-SEED_N = "sEdXXXXXXXXXXXXXXXXXXXXXXnXXX"  # n 버전
+SEED_M = "여기에_m_버전_seed를_넣으세요"
+SEED_N = "여기에_n_버전_seed를_넣으세요"
 
 KNOWN_PUBLIC_KEY = "EDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 KNOWN_ADDRESS = "rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-CANDIDATES = [("m", SEED_M), ("n", SEED_N)]
+# 두 후보만 검사
+CANDIDATES = [SEED_M, SEED_N]
 ALGORITHMS = ["ed25519", "secp256k1"]
 
-print("[+] Trying m / n seeds...\n")
+print("[+] Checking which seed is correct...\n")
 
-for label, candidate_seed in CANDIDATES:
-    print(f"[*] Testing seed with '{label}' → {candidate_seed}")
+for candidate_seed in CANDIDATES:
+    print(f"[*] Testing seed → {candidate_seed}")
 
     for algo in ALGORITHMS:
         try:
             priv, pub = xrpl.core.keypairs.derive_keypair(candidate_seed, algorithm=algo)
-            print(f"    - Derived pub ({algo}): {pub}")
+            addr = addresscodec.classic_address(pub)
 
-            if pub == KNOWN_PUBLIC_KEY:
-                addr = addresscodec.classic_address(pub)
-                if addr == KNOWN_ADDRESS:
-                    print("\n====================================")
-                    print("  FOUND MATCHING SEED!")
-                    print("====================================")
-                    print("Seed:      ", candidate_seed)
-                    print("Algorithm: ", algo)
-                    print("Public Key:", pub)
-                    print("Address:   ", addr)
-                    print("====================================\n")
-                    exit(0)
+            print(f"    - Derived pub ({algo}): {pub}")
+            print(f"    - Derived addr: {addr}")
+
+            if pub == KNOWN_PUBLIC_KEY and addr == KNOWN_ADDRESS:
+                print("\n✅ FOUND MATCHING SEED!")
+                print(f"Seed:      {candidate_seed}")
+                print(f"Algorithm: {algo}")
+                print(f"Public Key:{pub}")
+                print(f"Address:   {addr}\n")
+                exit(0)
 
         except Exception as e:
             print(f"    - Invalid for {algo}: {e}")
 
-print("\n[!] No matching seed found.")
-print("    → m/n 둘 다 틀렸거나")
-print("    → 공개키/주소 포맷이 실제 derive_keypair 출력과 다르거나")
-print("    → 실제 seed가 Ed25519인지 Secp256인지 다를 수 있음")
+print("\n❌ No matching seed found. Check your seed or known public key/address.")
