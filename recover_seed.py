@@ -1,42 +1,24 @@
 #!/usr/bin/env python3
-import xrpl
-from xrpl.core import addresscodec
+from xrpl.core.keypairs import derive_keypair, derive_classic_address
 
 # ---------------------------------------
 # USER INPUT
 # ---------------------------------------
-SEED_M = "여기에_m_버전_seed를_넣으세요"
-SEED_N = "여기에_n_버전_seed를_넣으세요"
+SEED = "여기에_your_seed를_넣으세요"
 
-KNOWN_PUBLIC_KEY = "EDXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-KNOWN_ADDRESS = "rXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+# ---------------------------------------
+# Seed → Keypair
+# ---------------------------------------
+try:
+    # Ed25519 기준
+    priv_key, pub_key = derive_keypair(SEED, algorithm="ed25519")
+    classic_addr = derive_classic_address(pub_key)
 
-# 두 후보만 검사
-CANDIDATES = [SEED_M, SEED_N]
-ALGORITHMS = ["ed25519", "secp256k1"]
+    print("=== XRPL Key Info ===")
+    print("Seed (입력):", SEED)
+    print("Private Key:", priv_key)
+    print("Public Key: ", pub_key)
+    print("Classic Address:", classic_addr)
 
-print("[+] Checking which seed is correct...\n")
-
-for candidate_seed in CANDIDATES:
-    print(f"[*] Testing seed → {candidate_seed}")
-
-    for algo in ALGORITHMS:
-        try:
-            priv, pub = xrpl.core.keypairs.derive_keypair(candidate_seed, algorithm=algo)
-            addr = addresscodec.classic_address(pub)
-
-            print(f"    - Derived pub ({algo}): {pub}")
-            print(f"    - Derived addr: {addr}")
-
-            if pub == KNOWN_PUBLIC_KEY and addr == KNOWN_ADDRESS:
-                print("\n✅ FOUND MATCHING SEED!")
-                print(f"Seed:      {candidate_seed}")
-                print(f"Algorithm: {algo}")
-                print(f"Public Key:{pub}")
-                print(f"Address:   {addr}\n")
-                exit(0)
-
-        except Exception as e:
-            print(f"    - Invalid for {algo}: {e}")
-
-print("\n❌ No matching seed found. Check your seed or known public key/address.")
+except Exception as e:
+    print("Error deriving keypair:", e)
