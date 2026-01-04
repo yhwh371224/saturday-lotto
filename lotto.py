@@ -7,7 +7,7 @@ print("✅ How many total numbers you like to choose?")
 c = input()
 print('')
 
-# 28 numbers
+# 28 numbers (pw:n)
 # 7pDgt2NzTL1r2Z6g6gv4vPYs3Lmm 
 numbers = list(range(1, 46))
 numbers_picked = random.sample(numbers, int(c))
